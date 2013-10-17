@@ -12,12 +12,14 @@ projectPath <- "C:/Users/Nicolas Housset/Documents/R_Projects/run_classification
 # Since it is a function the data.table will be created in the environment of the function
 sampleExtract <- function(projectPath, saveName, projectStart, projectEnd, ...){
   # Beginning of the SQL statement which contains the variable we want to extract
-  varSQL <- "\"SELECT scanid, number, spectrumid, l_lcrunid, l_projectid, l_instrumentid, l_protocolid, l_userid, identified, score, identitythreshold, confidence, DB,
+  varSQL <- "\"SELECT spectrum.l_projectid, l_lcrunid, lcrun.name, lcrun.filecount, lcrun.creationdate,
+scanid, number, spectrumid,  l_instrumentid, l_protocolid, l_userid, identified, score, identitythreshold, confidence, DB,
 rtsec, total_spectrum_intensity, mass_to_charge, spectrum.charge, accession, start, end, sequence, modified_sequence, identification.description FROM
 (spectrum LEFT JOIN scan ON spectrum.spectrumid = scan.l_spectrumid 
 LEFT JOIN identification ON spectrum.spectrumid = identification.l_spectrumid
-RIGHT JOIN project ON spectrum.l_projectid = project.projectid) 
-WHERE l_projectid BETWEEN ";
+RIGHT JOIN project ON spectrum.l_projectid = project.projectid
+RIGHT JOIN lcrun ON spectrum.l_lcrunid = lcrun.lcrunid) 
+WHERE spectrum.l_projectid BETWEEN ";
   varSQL <- paste0(saveName,
                    " <- data.table(dbGetQuery(con,",
                    varSQL, projectStart, " AND ", projectEnd, " AND l_instrumentid = 10;\"))");
@@ -35,7 +37,7 @@ start <- 2000
 for(i in 1:12){
   start <- start + 1
   end <- start + 99
-  stringExpression <- paste0("sampleExtract(",projectPath,"\"rt_project_part", i, "\", \"", start, "\", \"", end, "\")")
+  stringExpression <- paste0("sampleExtract(projectPath,\"rt_project_part", i, "\", \"", start, "\", \"", end, "\")")
   start <- end
   print(stringExpression)
   eval(parse(text=stringExpression))
@@ -54,6 +56,8 @@ for(i in 1:12){
   # print(stringExpression)
   eval(parse(text=stringExpression))
 }
-save(identified, file = "C:/Users/Nicolas Housset/Documents/RetentionTimeAnalysis/data/identified.RData", compression_level = 1)
+
+
+save(identified, file = paste0(projectPath,"/data/identified.RData"), compression_level = 1)
 
 

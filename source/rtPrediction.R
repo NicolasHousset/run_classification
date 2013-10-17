@@ -1,32 +1,48 @@
-# Again a reboot...
-# We start to get used to it right ?
-# Anyway...
+# First processing of the ms_lims data (project 2000 to 3200, Vanessa instrument (id = 10)
+
 
 library(data.table)
 library(ggplot2)
 
-projectPath <- "C:/Users/Nicolas Housset/Documents/RetentionTimeAnalysis"
+projectPath <- "C:/Users/Nicolas Housset/Documents/R_Projects/run_classification"
 load(file = paste0(projectPath,"/data/identified.RData"))
 
-identified <- identified[l_instrumentid == 10]
+# identified <- identified[l_instrumentid == 10]
 
 # To filter out experiments with very high retention times 
+# Also, to extract the internal index instrument-specific
 identified[, l_projectid := as.character(l_projectid)]
-rowNumbers <- identified[,j=list(.I[which.max(rtsec)]), by=c("l_projectid")][,j=V1]
-maxRTperProject <- identified[rowNumbers, list(l_projectid,rtsec)]
+rowNumbers <- identified[,j=list(.I[which.max(rtsec)]), by=name][,j=V1]
+maxRTperProject <- identified[rowNumbers, list(name,rtsec)]
+
+
+listName <- gregexpr("V[0123456789]+_", maxRTperProject[, name], ignore.case = TRUE)
+
+listIndex <- vector("list", NROW(listName))
+for (i in (1:NROW(listName))){
+  if(listName[[i]] > -1){
+    listIndex[[i]] <- substr(maxRTperProject[i, name], listName[[i]], listName[[i]]+attr(listName[[i]],"match.length")-1)
+  }
+}
+
+maxRTperProject[, name_2 := listIndex]
+maxRTperProject[nchar(name_2)==6, index := paste0("0",substr(name_2,2,5))]
+maxRTperProject[nchar(name_2)==7, index := substr(name_2, 2,6)]
+maxRTperProject[nchar(name_2)==4, index := "99999"]
+maxRTperProject[nchar(name_2)==11, index := substr(name_2, 2,6)]
+
 maxRTperProject[, rtsecMax := rtsec]
 maxRTperProject[, rtsec := NULL]
-setkey(maxRTperProject, l_projectid)
-setkey(identified, l_projectid)
+maxRTperProject[, name_2 := NULL]
+
+
+setkey(maxRTperProject, name)
+setkey(identified, name)
 identified <- identified[maxRTperProject]
-identified <- identified[rtsecMax < 3001]
 
-# Very different retention times on those projects
-identified[, weird := (l_projectid > 2468 & l_projectid < 2476) |
-           (l_projectid > 2461 & l_projectid < 2466)]
-
-# Since we will calculate the median per protocol, let's put the weird stuff on a different protocol id
-identified[weird == TRUE, l_protocolid := 99]
+identified[, grp_protocol := l_protocolid]
+identified[l_protocolid == 5, grp_protocol := 8]
+identified[l_protocolid == 11, grp_protocol := 8]
 
 # Most common peptide notion depends on the protocol
 
@@ -35,13 +51,11 @@ identified[, l_protocolid.f := factor(l_protocolid)]
 list_protocol <- levels(unique(identified[,l_protocolid.f]))
 
 
-
 ######
-identified[, l_lcrunid:= as.character(l_lcrunid)]
-setkey(identified, l_lcrunid, modified_sequence)
-countsPerProject <- unique(identified)[, list(l_lcrunid,modified_sequence, l_protocolid.f)]
+setkey(identified, index, modified_sequence)
+countsPerProject <- unique(identified)[, list(index,modified_sequence, l_protocolid.f)]
 countsPerProject[, modified_sequence.f := factor(modified_sequence)]
-
+setkey(countsPerProject, l_protocolid.f)
 # Tip : factor of modified_sequence has been computed with all the protocols.
 # When summarizing it per protocol, peptides not present will still be here but with a counting of 0
 # The order of summary(modified_sequence.f) will be the same (alphabetical)
@@ -73,27 +87,6 @@ setkey(dt, modified_sequence)
 setkey(identified, modified_sequence)
 identified <- identified[dt]
 
-identified[, grpProj := 1]
-identified[l_projectid > 2062, grpProj := 2]
-identified[l_projectid > 2499, grpProj := 3]
-
-# Create an alphabetical-based index
-id_peptide <- 1:NROW(nbProjPerPeptide)
-dt <- data.table(id_peptide)
-dt[, modified_sequence := labels(nbProjPerPeptide)]
-dt[, nbProjPep := -nbProjPerPeptide]
-setkey(dt, nbProjPep)
-# Here, the index will depend of the number of projects in which each peptide appear
-dt[, rank_peptide := 1:NROW(nbProjPerPeptide)]
-dt[, nbProjPep := -nbProjPep]
-dt[, id_peptide := NULL]
-setkey(dt, modified_sequence)
-
-setkey(identified, modified_sequence)
-identified <- identified[dt]
-rm(countsPerProject)
-
-# test <- identified[(l_protocolid!=5 & l_protocolid!=11) | (nbProjPepProtocol5>4 | nbProjPepProtocol11>4)]
 
 setkey(identified, l_lcrunid, modified_sequence, rtsec)
 # To remove rt that have been identified more than once (otherwise, index are altered)
@@ -111,27 +104,9 @@ setkey(identified_subs, l_lcrunid, modified_sequence, total_spectrum_intensity)
 identified_subs[, index_rt2 := convenient_vector, by = c("l_lcrunid","modified_sequence")]
 identified_subs[,total_spectrum_intensity := -total_spectrum_intensity]
 
-# Statistics computed for all the rt measurements
-setkey(identified_subs, l_instrumentid, modified_sequence, l_protocolid, grpProj)
-identified_subs[, q975_1 := quantile(rtsec, probs = 0.975), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[, q025_1 := quantile(rtsec, probs = 0.025), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[, q75_1 := quantile(rtsec, probs = 0.75), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[, q50_1 := quantile(rtsec, probs = 0.50), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[, q25_1 := quantile(rtsec, probs = 0.25), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[, wid95_1 := q975_1 - q025_1]
-identified_subs[, wid50_1 := q75_1 - q25_1]
-identified_subs[, QCD_1 := (q75_1 - q25_1) / (q75_1 + q25_1)]
-
 # Statistics computed on rt measurements where index_rt2 < 5 : 4 most intense spectrum of the peptide per LC-run
 
-identified_subs[index_rt2 <3, q975_2 := quantile(rtsec, probs = 0.975), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[index_rt2 <3, q025_2 := quantile(rtsec, probs = 0.025), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[index_rt2 <3, q75_2 := quantile(rtsec, probs = 0.75), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[index_rt2 <3, q50_2 := quantile(rtsec, probs = 0.50), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[index_rt2 <3, q25_2 := quantile(rtsec, probs = 0.25), by = c("l_instrumentid", "modified_sequence", "l_protocolid", "grpProj")]
-identified_subs[index_rt2 <3, wid95_2 := q975_2 - q025_2]
-identified_subs[index_rt2 <3, wid50_2 := q75_2 - q25_2]
-identified_subs[index_rt2 <3, QCD_2 := (q75_2 - q25_2) / (q75_2 + q25_2)]
+identified_subs[index_rt2 <3, q50_2 := quantile(rtsec, probs = 0.50), by = c("l_instrumentid", "modified_sequence", "l_protocolid")]
 
 save(identified_subs, file = paste0(projectPath,"/data/identified_protocol.RData"), compression_level=1)
 write.csv(identified_subs, file = paste0(projectPath,"/data/identified_protocol.csv"))
