@@ -20,6 +20,7 @@ setkey(list_runs, l_projectid)
 
 # Classification put in commentary will be based on the local index, which I hope is more reliable than lcrunid, at least locally
 
+list_runs[as.character(2001:2054), group_run := 0L] # Only one column
 list_runs[as.character(2065:2079), group_run := 1L] # 10409:10416 : oleh ; 10435:10439 : ohel
 list_runs[as.character(2104), group_run := 2L] # All low, but I would be cautious
 list_runs[as.character(2127:2142), group_run := 3L] # ohel, very confident
@@ -67,6 +68,34 @@ list_runs[as.character(2610), group_run := 43L] # Jonathan having fun, discard
 list_runs[as.character(2614:2615), group_run := 44L] # ohel
 list_runs[as.character(2633), group_run := 45L] # ohel
 list_runs[as.character(2637), group_run := 46L] # ohel
+list_runs[as.character(2655:2656), group_run := 47L] # ohel. 15138:15157 and 15188:15207.
+list_runs[as.character(2657), group_run := 48L] # ohel
+list_runs[as.character(2703), group_run := 49L] # ohel. 14569:14572 and 14595:14598
+list_runs[as.character(2704), group_run := 50L] # Very, very high. Exclude.
+list_runs[as.character(2733:2734), group_run := 51L] # 14649 and 14651 low
+list_runs[as.character(2747:2748), group_run := 52L] # oleh
+list_runs[as.character(2749), group_run := 53L] # 14856:14874 oleh 14932:14935 ohel
+list_runs[as.character(2750:2753), group_run := 54L] # Weird An stuff. To exclude ?
+list_runs[as.character(2758), group_run := 55L] # Very different stuff, close to Jonathan's (most Ace and prop peptides)
+list_runs[as.character(2765), group_run := 56L] # oleh. 14707:14738 and 14783:14791
+list_runs[as.character(2768:2769), group_run := 57L] # ohel
+list_runs[as.character(2775:2779), group_run := 58L] # oleh
+list_runs[as.character(2821), group_run := 59L] # ohel, but Ace and Prop oriented
+list_runs[as.character(2844), group_run := 60L] # 14982:15007 ohel ; 15008:15020 oleh (tiny difference though)
+list_runs[as.character(2897:2900), group_run := 61L] # 15245:15260 ohel ; 15267:15307 oleh ; but Ace and Prop oriented
+list_runs[as.character(2902:2917), group_run := 62L] # New Virotrap, put apart
+list_runs[as.character(2921), group_run := 63L] # oleh
+list_runs[as.character(2930), group_run := 64L] # ohel. Exclude 15361, 15363 and 15365.
+list_runs[as.character(2934:2937), group_run := 65L] # oleh. Ace and prop oriented.
+list_runs[as.character(c(2965,2967)), group_run := 66L] # oleh. 15629:15648 and 15673:15692. Ace and prop oriented.
+list_runs[as.character(2975), group_run := 67L] # oleh. 15629:15648 and 15673:15692. Ace and prop oriented.
+list_runs[as.character(2985), group_run := 68L] # oleh. Ace and prop oriented.
+list_runs[as.character(3007:3009), group_run := 69L] # 15910:15929 ohel. 15793:15812 and 15815:15834 oleh ; Ace and prop oriented.
+list_runs[as.character(3121:3124), group_run := 70L] # Low quality, exclude
+list_runs[as.character(3130:3137), group_run := 71L] # ohel. Exclude 16142 and 16149.
+
+table(list_runs[, group_run])
+
 
 
 
