@@ -73,3 +73,49 @@ list_runs[list(as.character(23),as.character(c(((6547:6558)*2),((6567:6578)*2)))
 
 list_runs[list(as.character(24),as.character((6489)*2-1)), classification := "low"]
 list_runs[list(as.character(24),as.character((6489)*2)), classification := "high"]
+
+list_runs[list(as.character(25),as.character(13276:13317)), classification := "exclude"]
+
+list_runs[list(as.character(26),as.character(c(13251,13253))), classification := "low"]
+list_runs[list(as.character(26),as.character(13252)), classification := "high"]
+list_runs[list(as.character(26),as.character(13254)), classification := "very high"]
+
+list_runs[list(as.character(27),as.character((6991:7000)*2+1)), classification := "high"]
+list_runs[list(as.character(27),as.character((6991:7000)*2)), classification := "low"]
+
+list_runs[list(as.character(28),c("09636","09642")), classification := "exclude"]
+
+list_runs[list(as.character(29),as.character(13545:13586)), classification := "exclude"]
+
+list_runs[list(as.character(30),as.character((6660:6691)*2+1)), classification := "high"]
+list_runs[list(as.character(30),as.character((6660:6691)*2)), classification := "low"]
+
+list_runs[list(as.character(31),as.character((6732:6734)*2-1)), classification := "high"]
+list_runs[list(as.character(31),as.character((6732:6734)*2)), classification := "low"]
+
+list_runs[list(as.character(32),as.character((6914:6925)*2+1)), classification := "low"]
+list_runs[list(as.character(32),as.character((6914:6925)*2)), classification := "high"]
+
+list_runs[list(as.character(33),as.character((6803:6812)*2+1)), classification := "low"]
+list_runs[list(as.character(33),as.character((6803:6812)*2)), classification := "high"]
+
+list_runs[list(as.character(34),as.character(c(13589,13591))), classification := "low"]
+
+list_runs[list(as.character(35),as.character(c(13595,13597,13599,13601))), classification := "low"]
+list_runs[list(as.character(35),as.character(c(13603))), classification := "exclude"]
+
+list_runs[list(as.character(36),as.character((6876:6896)*2+1)), classification := "low"]
+list_runs[list(as.character(36),as.character((6876:6896)*2)), classification := "high"]
+list_runs[list(as.character(36),as.character(13890:13893)), classification := "high"]
+
+list_runs[list(as.character(37),as.character((6909:6910)*2+1)), classification := "low"]
+list_runs[list(as.character(37),as.character((6909:6910)*2)), classification := "high"]
+
+list_runs[list(as.character(38),as.character((6939)*2-1)), classification := "low"]
+list_runs[list(as.character(38),as.character((6939)*2)), classification := "high"]
+
+list_runs[list(as.character(39),as.character((6936)*2+1)), classification := "low"]
+list_runs[list(as.character(39),as.character((6936:6937)*2)), classification := "high"]
+
+list_runs[list(as.character(40),as.character((6905:6907)*2+1)), classification := "low"]
+list_runs[list(as.character(40),as.character((6905:6907)*2)), classification := "high"]
