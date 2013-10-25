@@ -21,8 +21,9 @@ setkey(list_runs, l_projectid)
 # Classification put in commentary will be based on the local index, which I hope is more reliable than lcrunid, at least locally
 
 list_runs[as.character(2001:2054), group_run := 0L] # Only one column
+list_runs[as.character(3153), group_run := 0L] # Wrong instrument (Linda)
 list_runs[as.character(2065:2079), group_run := 1L] # 10409:10416 : oleh ; 10435:10439 : ohel
-list_runs[as.character(2104), group_run := 2L] # All low, but I would be cautious
+list_runs[as.character(2104), group_run := 2L] # All low, but I would be cautious. Update : it behaves more like high.
 list_runs[as.character(2127:2142), group_run := 3L] # ohel, very confident
 list_runs[as.character(2143), group_run := 4L] # very high, test 90 min from Jonathan
 list_runs[as.character(2150:2151), group_run := 5L] # ohel
@@ -47,8 +48,9 @@ list_runs[as.character(2389:2390), group_run := 22L] # Jonathan having fun, disc
 list_runs[as.character(2405:2406), group_run := 23L] # ohel
 list_runs[as.character(2414:2415), group_run := 24L] # oleh
 list_runs[as.character(2446:2447), group_run := 25L] # Very high, Jonathan having fun, discard
-list_runs[as.character(2458:2461), group_run := 26L] # 13251/253 low ; 13252 high ; 13254 very high
+list_runs[as.character(2458:2465), group_run := 26L] # 13251/253 low ; 13252 high ; 13254:13258 very high (might be new virotrap)
 list_runs[as.character(2477), group_run := 27L] # ohel
+list_runs[as.character(2469:2475), group_run := 28L] # research on older runs, exclude
 list_runs[as.character(2479:2480), group_run := 28L] # research on older runs, exclude
 list_runs[as.character(2481:2482), group_run := 29L] # An runs, probably different solvent, but ohel
 list_runs[as.character(2511:2514), group_run := 30L] # ohel
@@ -69,7 +71,7 @@ list_runs[as.character(2614:2615), group_run := 44L] # ohel
 list_runs[as.character(2633), group_run := 45L] # ohel
 list_runs[as.character(2637), group_run := 46L] # ohel
 list_runs[as.character(2655:2656), group_run := 47L] # ohel. 15138:15157 and 15188:15207.
-list_runs[as.character(2657), group_run := 48L] # ohel
+list_runs[as.character(2657), group_run := 48L] # oleh
 list_runs[as.character(2703), group_run := 49L] # ohel. 14569:14572 and 14595:14598
 list_runs[as.character(2704), group_run := 50L] # Very, very high. Exclude.
 list_runs[as.character(2733:2734), group_run := 51L] # 14649 and 14651 low
@@ -93,6 +95,7 @@ list_runs[as.character(2985), group_run := 68L] # oleh. Ace and prop oriented.
 list_runs[as.character(3007:3009), group_run := 69L] # 15910:15929 ohel. 15793:15812 and 15815:15834 oleh ; Ace and prop oriented.
 list_runs[as.character(3121:3124), group_run := 70L] # Low quality, exclude
 list_runs[as.character(3130:3137), group_run := 71L] # ohel. Exclude 16142 and 16149.
+list_runs[as.character(2285), group_run := 72L] # Oops I have forgotten this one. ohel for 12015:12020 and exclude 12856
 
 table(list_runs[, group_run])
 
