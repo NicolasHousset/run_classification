@@ -1,7 +1,5 @@
 # Purpose : on runs classified on low and high columns, the average shift seems to change
 
-# To detect when this changes occurs, I will split the measurements in 10 equal parts.
-# I hope to find interesting changes in the distribution of the shift.
 
 library(data.table)
 library(ggplot2)
@@ -73,8 +71,6 @@ setkey(dt, modified_sequence)
 setkey(rtPeptide, modified_sequence)
 rtPeptide <- rtPeptide[dt]
 
-
-
 #####
 setkey(rtPeptide, classification.f, modified_sequence)
 rtPeptideColumn <- unique(rtPeptide[c("high04","low04")])[nbProjPepProtocolhigh04 > 0 & nbProjPepProtocollow04 > 0,
@@ -123,15 +119,15 @@ ggplot(diffColumns, aes(diff)) + xlim(-100,200)+ geom_histogram(aes(y = ..densit
 
 #####
 setkey(rtPeptide, classification.f, modified_sequence)
-rtPeptideColumn <- unique(rtPeptide[c("high03","high04")])[nbProjPepProtocolhigh03 > 0 & nbProjPepProtocolhigh04 > 0,
+rtPeptideColumn <- unique(rtPeptide[c("high01","high02")])[nbProjPepProtocolhigh01 > 0 & nbProjPepProtocolhigh02 > 0,
                                                           list(modified_sequence, classification.f, q50_4)]
 
 setkey(rtPeptideColumn, classification.f)
-diffColumns <- rtPeptideColumn["high03"]
+diffColumns <- rtPeptideColumn["high01"]
 diffColumns[, q50_4_low := q50_4]
 diffColumns[, q50_4 := NULL]
 
-dt <- rtPeptideColumn["high04"]
+dt <- rtPeptideColumn["high02"]
 setkey(diffColumns, modified_sequence)
 setkey(dt, modified_sequence)
 

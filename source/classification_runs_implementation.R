@@ -19,11 +19,11 @@ list_runs[list(as.character(4),as.character(10728:10729)), classification := "ve
 list_runs[list(as.character(5),as.character((5518:5543)*2+1)), classification := "high"]
 list_runs[list(as.character(5),as.character((5519:5544)*2)), classification := "low"]
 
-list_runs[list(as.character(6),as.character((5514:5515)*2+1)), classification := "high"]
-list_runs[list(as.character(6),as.character((5515:5516)*2)), classification := "low"]
+list_runs[list(as.character(6),as.character((5514:5515)*2+1)), classification := "exclude"]
+list_runs[list(as.character(6),as.character((5515:5516)*2)), classification := "exclude"]
 list_runs[list(as.character(6),as.character(11363)), classification := "exclude"]
-list_runs[list(as.character(6),as.character(11365)), classification := "low"]
-list_runs[list(as.character(6),as.character(c(11364,11366))), classification := "high"]
+list_runs[list(as.character(6),as.character(11365)), classification := "exclude"]
+list_runs[list(as.character(6),as.character(c(11364,11366))), classification := "exclude"]
 
 list_runs[list(as.character(7),as.character(11352:11355)), classification := "exclude"]
 list_runs[list(as.character(7),as.character(11356:11360)), classification := "exclude"]
@@ -216,7 +216,7 @@ list_runs[list(as.character(72),as.character(c(12856))), classification := "excl
 setkey(list_runs, l_projectid, l_lcrunid, index)
 setkey(identified_subs, l_projectid, l_lcrunid, index)
 setkey(test, index)
-
+test["11364"]
 table(list_runs[, classification])
 # Adding the column information and deciding to include if this run will be included in the retention time calculation
 # may be considered as annotating. Took some time, I hope it's worth it. Let's visualize in Spotfire !
