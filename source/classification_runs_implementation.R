@@ -25,8 +25,8 @@ list_runs[list(as.character(6),as.character(11363)), classification := "exclude"
 list_runs[list(as.character(6),as.character(11365)), classification := "low"]
 list_runs[list(as.character(6),as.character(c(11364,11366))), classification := "high"]
 
-list_runs[list(as.character(7),as.character(11352:11355)), classification := "high"]
-list_runs[list(as.character(7),as.character(11356:11360)), classification := "high"]
+list_runs[list(as.character(7),as.character(11352:11355)), classification := "exclude"]
+list_runs[list(as.character(7),as.character(11356:11360)), classification := "exclude"]
 
 list_runs[list(as.character(8),as.character(11543:11544)), classification := "exclude"]
 
@@ -204,8 +204,8 @@ list_runs[list(as.character(69),as.character((15910:15929))), classification := 
 
 list_runs[list(as.character(70),as.character((16013:16016))), classification := "exclude"]
 
-list_runs[list(as.character(71),as.character((8071:8074)*2+1)), classification := "high"]
-list_runs[list(as.character(71),as.character((8071:8074)*2)), classification := "low"]
+list_runs[list(as.character(71),as.character((8071:8074)*2+1)), classification := "exclude"]
+list_runs[list(as.character(71),as.character((8071:8074)*2)), classification := "exclude"]
 list_runs[list(as.character(71),as.character(c(16142,16149))), classification := "exclude"]
 
 list_runs[list(as.character(72),as.character((6008:6010)*2-1)), classification := "high"]
