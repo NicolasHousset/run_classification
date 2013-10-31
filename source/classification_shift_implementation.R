@@ -13,6 +13,7 @@ rtPeptide["high03", corrected_RT := rtsec - 120]
 rtPeptide["high04", corrected_RT := rtsec - 120]
 
 setkey(rtPeptide, modified_sequence)
+rtPeptide <- rtPeptide[corrected_RT > 700 & corrected_RT < 1810]
 rtPeptide[, q50_5 := quantile(corrected_RT, probs = 0.50), by = c("modified_sequence")]
 
 setkey(rtPeptide, index, modified_sequence)
@@ -35,9 +36,13 @@ setkey(dt, modified_sequence)
 setkey(rtPeptide, modified_sequence)
 rtPeptide <- rtPeptide[dt]
 
-save(rtPeptide, file = paste0(projectPath,"/data/corrected_id.RData"), compression_level=1)
-write.csv(rtPeptide, file = paste0(projectPath,"/data/corrected_id.csv"))
+save(rtPeptide, file = paste0(projectPath,"/data/filtered_id.RData"), compression_level=1)
+write.csv(rtPeptide, file = paste0(projectPath,"/data/filtered_id.csv"))
 
+
+
+
+####
 rtPeptide <- rtPeptide[corrected_RT > 600]
 
 rtPeptide[,rank_peptide := as.character(rank_peptide)]

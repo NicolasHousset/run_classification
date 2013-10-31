@@ -3,7 +3,7 @@ library(ggplot2)
 
 projectPath <- "C:/Users/Nicolas Housset/Documents/R_Projects/run_classification"
 
-load(file = paste0(projectPath,"/data/corrected_id.RData"))
+load(file = paste0(projectPath,"/data/filtered_id.RData"))
 
 setkey(rtPeptide, modified_sequence)
 rtPepUnique <- unique(rtPeptide)[,list(sequence, modified_sequence)]
@@ -55,8 +55,8 @@ setkey(rtPepUnique, sequence, modified_sequence)
 setkey(rtPeptide, sequence, modified_sequence)
 rtPeptide <- rtPepUnique[rtPeptide]
 
-# rtPeptide <- rtPeptide[mod1=="" & modN=="NH2-" & modC=="-COOH"]
 # rtPeptide <- rtPeptide[mod1=="" | mod1=="K<prop>" | mod1=="K<propC13>"]
+rtPeptide <- rtPeptide[mod1=="" & modN=="NH2-" & modC=="-COOH"]
 rtPeptide <- rtPeptide[(mod1=="M<Mox*>" | mod1=="" | mod1=="C<Cmm*>" | mod1=="K<c13>" | mod1=="R<C13>" | mod1=="Q<Pyr>") &
                          modN=="NH2-" & mod2!="M<Mox>" & mod3!="M<Mox>" & mod4!="M<Mox>"]
 
@@ -78,11 +78,13 @@ rtPeptide <- rtPeptide[error == FALSE]
 
 # To exclude redundant peptides
 rtPeptide <- rtPeptide[index_rt2 <2]
-# To exclude peptides with too high retention time
-rtPeptide <- rtPeptide[q50_5 < 1800]
+# The filter on rt makes median too compact at the end
+# Also, better to filter out the very beginning
+rtPeptide <- rtPeptide[q50_5 > 750 & q50_5 < 1750]
 
 setkey(rtPeptide, elude_sequence)
-rtPeptideUnique <- unique(rtPeptide)[, list(elude_sequence,q50_5)]
+rtPeptideUnique <- unique(rtPeptide)[, list(elude_sequence,q50_3,q50_5)]
+rtPeptideUnique <- rtPeptideUnique[!grepl("[BJOUXZ]",elude_sequence)]
 
 # Stratified sampling : we want to have  more peptides selected at early and late retention times, less in the middle
 early <- as.character(7:10)
@@ -91,7 +93,7 @@ middle <- as.character(11:17)
 earlyCoefficient <- 1
 lateCoefficient <- 1
 middleCoefficient <- 1
-threshold <- 0.01
+threshold <- 0.03
 
 breaks <- (7:25)*100
 rtPeptideUnique[, rtCent := cut(x=q50_5, breaks=((7:25)*100), labels=7:24)]
@@ -107,8 +109,7 @@ rtPeptideUnique[late, train := (trainRand < (threshold * lateCoefficient))]
 
 # ggplot(rtPeptideUnique[train==TRUE], aes(rtCent)) + geom_histogram()
 
-rtPeptideTrain <- rtPeptideUnique[, list(elude_sequence, q50_5)]
-# rtPeptideTrain <- rtPeptideUnique[train == TRUE, list(elude_sequence, q50_5)]
+rtPeptideTrain <- rtPeptideUnique[train==TRUE, list(elude_sequence, q50_5)]
 # modified_sequence is included because it's the key, but I suspect this kind of behavior to change, so check.
 # We want to assess the performance of the algorithm on the actual retention time observed, not the median.
 setkey(rtPeptide, elude_sequence)
@@ -116,7 +117,7 @@ rtPeptideTest <- rtPeptide[rtPeptideUnique[train == FALSE, elude_sequence], corr
 
 setkey(rtPeptideUnique, elude_sequence)
 setkey(rtPeptide, elude_sequence)
-rtPeptideTestMedian  <- unique(rtPeptide[rtPeptideUnique[train == FALSE, elude_sequence]])[, list(elude_sequence,q50_5)]
+rtPeptideTestMedian  <- unique(rtPeptide[rtPeptideUnique[train == FALSE, elude_sequence]])[, list(elude_sequence,q50_5)][1]
 
 write.table(rtPeptideTrain, file=paste0(projectPath, "/data/rtPeptideTrain.txt"), quote = FALSE, sep="\t", row.names = FALSE, col.names = FALSE)
 write.table(rtPeptideTest, file=paste0(projectPath, "/data/rtPeptideTest.txt"), quote = FALSE, , sep="\t", row.names = FALSE, col.names = FALSE)
@@ -159,8 +160,25 @@ strCommand <- paste0("cd ",shQuote(eludePath), " && elude ", verbFlag, verbLevel
 shell(strCommand, translate = TRUE, wait = TRUE)
 
 
+rtPeptideTestMedian  <- unique(rtPeptide[rtPeptideUnique[train == FALSE, elude_sequence]])[, list(elude_sequence,q50_5)]
+write.table(rtPeptideTestMedian, file=paste0(projectPath, "/data/rtPeptideTestMedian.txt"), quote = FALSE, , sep="\t", row.names = FALSE, col.names = FALSE)
+testData <- "/data/rtPeptideTestMedian.txt"
+testData <- shQuote(paste0(projectPath, testData))
 
-results <- data.table(read.table(file=paste0(projectPath, "/data/predictions.out"), header = TRUE, sep = "\t"))
+savePredict <- "/data/predictionsTestMedian.out"
+savePredict <- shQuote(paste0(projectPath, savePredict))
+
+loadModelFlag <- " -l "
+
+# This time we apply the model on the testing data, but using the median
+eludePath <- "C:/Program Files (x86)/Elude"
+strCommand <- paste0("cd ",shQuote(eludePath), " && elude ", verbFlag, verbLevel, testFlag,
+                     testData, loadModelFlag, saveModel,
+                     savePredictFlag, savePredict, testRTFlag, ignoreNewTestPTMFlag)
+shell(strCommand, translate = TRUE, wait = TRUE)
+
+
+results <- data.table(read.table(file=paste0(projectPath, "/data/predictionsTestMedian.out"), header = TRUE, sep = "\t"))
 results[, diff := Predicted_RT - Observed_RT]
 setkey(results, Observed_RT)
 
@@ -175,12 +193,12 @@ ggplot(results, aes(centile, q95_pred)) + geom_point(alpha=(1/2))
 ggplot(results, aes(centile, q90_pred)) + geom_point(alpha=(1/2))
 
 
-for(i in 200:(NROW(results))){
-  results[i, movq975 := results[(i-199):i, quantile(diff, probs = 0.975)]]
-  results[i, movq025 := results[(i-199):i, quantile(diff, probs = 0.025)]]
-  results[i, movq500 := results[(i-199):i, quantile(diff, probs = 0.500)]]
-  results[i, movq250 := results[(i-199):i, quantile(diff, probs = 0.250)]]
-  results[i, movq750 := results[(i-199):i, quantile(diff, probs = 0.750)]]
+for(i in 400:(NROW(results))){
+  results[i, movq975 := results[(i-399):i, quantile(diff, probs = 0.975)]]
+  results[i, movq025 := results[(i-399):i, quantile(diff, probs = 0.025)]]
+  results[i, movq500 := results[(i-399):i, quantile(diff, probs = 0.500)]]
+  results[i, movq250 := results[(i-399):i, quantile(diff, probs = 0.250)]]
+  results[i, movq750 := results[(i-399):i, quantile(diff, probs = 0.750)]]
 }
 
 graphDS <- melt(data = results, 
@@ -189,8 +207,9 @@ graphDS <- melt(data = results,
                 variable.name = "quantile",
                 value.name = "error")
 
-ggplot(graphDS, aes(Observed_RT, error, colour = quantile)) + geom_point(alpha=(1/2)) + xlim(700,1900)+ ylim(-420,200)
+ggplot(graphDS, aes(Observed_RT, error, colour = quantile)) + geom_point(alpha=(1/2)) + xlim(750,1750)+ ylim(-300,160)
+ggplot(results, aes(Observed_RT, movq975 - movq025)) + geom_point(alpha=(1/2)) + xlim(750,1750)
 
 save(graphDS, file = paste0(projectPath,"/plot/graphLow.RData"), compression_level = 1)
 
-
+ggplot(rtPeptideUnique, aes(q50_5)) + xlim(700,1900) + geom_histogram(aes(y = ..density..), binwidth = 10)

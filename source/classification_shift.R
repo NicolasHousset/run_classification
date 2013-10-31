@@ -71,6 +71,9 @@ setkey(dt, modified_sequence)
 setkey(rtPeptide, modified_sequence)
 rtPeptide <- rtPeptide[dt]
 
+save(rtPeptide, file = paste0(projectPath,"/data/corrected_id.RData"), compression_level=1)
+write.csv(rtPeptide, file = paste0(projectPath,"/data/corrected_id.csv"))
+
 #####
 setkey(rtPeptide, classification.f, modified_sequence)
 rtPeptideColumn <- unique(rtPeptide[c("high04","low04")])[nbProjPepProtocolhigh04 > 0 & nbProjPepProtocollow04 > 0,
