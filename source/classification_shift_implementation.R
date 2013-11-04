@@ -1,4 +1,4 @@
-
+load(file = paste0(projectPath,"/data/corrected_id.RData"))
 
 # Finally, the awaited correction of the shift...
 setkey(rtPeptide, classification.f)
@@ -12,8 +12,13 @@ rtPeptide["high02", corrected_RT := rtsec - 50]
 rtPeptide["high03", corrected_RT := rtsec - 120]
 rtPeptide["high04", corrected_RT := rtsec - 120]
 
+# A little correction to counter the decreasing speed of peptide over time
+rtPeptide[, corrected_RT := (-0.00004*corrected_RT*corrected_RT) + (1.06*corrected_RT) - 22.5]
+
 setkey(rtPeptide, modified_sequence)
-rtPeptide <- rtPeptide[corrected_RT > 700 & corrected_RT < 1810]
+rtPeptide <- rtPeptide[corrected_RT > 700 & corrected_RT < 1770]
+# Filter for non linearly correted rt
+# rtPeptide <- rtPeptide[corrected_RT > 700 & corrected_RT < 1810]
 rtPeptide[, q50_5 := quantile(corrected_RT, probs = 0.50), by = c("modified_sequence")]
 
 setkey(rtPeptide, index, modified_sequence)

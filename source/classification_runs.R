@@ -23,7 +23,7 @@ setkey(list_runs, l_projectid)
 list_runs[as.character(2001:2054), group_run := 0L] # Only one column
 list_runs[as.character(3153), group_run := 0L] # Wrong instrument (Linda)
 list_runs[as.character(2065:2079), group_run := 1L] # 10409:10416 : oleh ; 10435:10439 : ohel
-list_runs[as.character(2104), group_run := 2L] # All low, but I would be cautious. Update : it behaves more like high.
+list_runs[as.character(2104), group_run := 2L] # ohel
 list_runs[as.character(2127:2142), group_run := 3L] # ohel, very confident
 list_runs[as.character(2143), group_run := 4L] # very high, test 90 min from Jonathan
 list_runs[as.character(2150:2151), group_run := 5L] # ohel

@@ -20,10 +20,13 @@ table(rtPeptide[, index])
 setkey(rtPeptide, index)
 
 rtPeptide[, group := NULL]
-rtPeptide[as.character(10409:11088), group := "01"] # Shift around 70 seconds
-rtPeptide[as.character(11487:13468), group := "02"] # Shift around 30 seconds
-rtPeptide[as.character(13588:14874), group := "03"] # Shift around 70 seconds
-rtPeptide[as.character(14932:15135), group := "04"] # Shift around 25 seconds
+rtPeptide[as.character(10409:10439), group := "00"] # 
+rtPeptide[as.character(10750:10773), group := "01"] # 
+rtPeptide[as.character(10858:11088), group := "02"] # Shift around 70 seconds
+rtPeptide[as.character(11487:13157), group := "03"] # Shift around 30 seconds
+rtPeptide[as.character(13320:13468), group := "04"] # 
+rtPeptide[as.character(13589:14874), group := "05"] # Shift around 70 seconds
+rtPeptide[as.character(14932:15135), group := "06"] # Shift around 25 seconds
 
 
 table(rtPeptide[,group])
@@ -99,15 +102,15 @@ ggplot(diffColumns, aes(diff)) + xlim(-100,200)+ geom_histogram(aes(y = ..densit
 
 #####
 setkey(rtPeptide, classification.f, modified_sequence)
-rtPeptideColumn <- unique(rtPeptide[c("low02","low03")])[nbProjPepProtocollow02 > 0 & nbProjPepProtocollow03 > 0,
+rtPeptideColumn <- unique(rtPeptide[c("low01","low02")])[nbProjPepProtocollow01 > 0 & nbProjPepProtocollow02 > 0,
                                                           list(modified_sequence, classification.f, q50_4)]
 
 setkey(rtPeptideColumn, classification.f)
-diffColumns <- rtPeptideColumn["low02"]
+diffColumns <- rtPeptideColumn["low01"]
 diffColumns[, q50_4_low := q50_4]
 diffColumns[, q50_4 := NULL]
 
-dt <- rtPeptideColumn["low03"]
+dt <- rtPeptideColumn["low02"]
 setkey(diffColumns, modified_sequence)
 setkey(dt, modified_sequence)
 
@@ -118,6 +121,10 @@ diffColumns[, q50_4 := NULL]
 diffColumns[, diff := q50_4_high - q50_4_low]
 
 ggplot(diffColumns, aes(diff)) + xlim(-100,200)+ geom_histogram(aes(y = ..density..), binwidth = 5)
+
+quantile(diffColumns[, diff], probs = 0.5)
+ggplot(diffColumns[q50_4_low>1250], aes(diff)) + xlim(-100,200)+ geom_histogram(aes(y = ..density..), binwidth = 5)
+ggplot(diffColumns[q50_4_low<1250], aes(diff)) + xlim(-100,200)+ geom_histogram(aes(y = ..density..), binwidth = 5)
 
 
 #####
@@ -141,3 +148,39 @@ diffColumns[, q50_4 := NULL]
 diffColumns[, diff := q50_4_high - q50_4_low]
 
 ggplot(diffColumns, aes(diff)) + xlim(-100,200)+ geom_histogram(aes(y = ..density..), binwidth = 5)
+ggplot(diffColumns[q50_4_low > 1250], aes(diff)) + xlim(-100,200)+ geom_histogram(aes(y = ..density..), binwidth = 5)
+ggplot(diffColumns[q50_4_high < 1250], aes(diff)) + xlim(-100,200)+ geom_histogram(aes(y = ..density..), binwidth = 5)
+
+
+
+#####
+setkey(rtPeptide, classification.f, modified_sequence)
+rtPeptideColumn <- unique(rtPeptide[c("low01","low02", "low05")])[nbProjPepProtocollow01 > 0 & nbProjPepProtocollow02 > 0 &
+                                                                    nbProjPepProtocollow05 > 0,
+                                                         list(modified_sequence, classification.f, q50_4)]
+
+setkey(rtPeptideColumn, classification.f)
+diffColumns <- rtPeptideColumn["low01"]
+diffColumns[, q50_4_low := q50_4]
+diffColumns[, q50_4 := NULL]
+
+dt <- rtPeptideColumn["low02"]
+setkey(diffColumns, modified_sequence)
+setkey(dt, modified_sequence)
+
+diffColumns <- diffColumns[dt]
+diffColumns[, q50_4_high := q50_4]
+diffColumns[, q50_4 := NULL]
+
+dt <- rtPeptideColumn["low05"]
+setkey(diffColumns, modified_sequence)
+setkey(dt, modified_sequence)
+
+diffColumns <- diffColumns[dt]
+diffColumns[, q50_4_test := q50_4]
+diffColumns[, q50_4 := NULL]
+
+
+diffColumns[, diff := q50_4_high - q50_4_low]
+
+ggplot(diffColumns[diff > 50], aes(q50_4_test - q50_4_low)) + xlim(-100,200)+ geom_histogram(aes(y = ..density..), binwidth = 5)

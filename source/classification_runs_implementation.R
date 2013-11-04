@@ -9,7 +9,8 @@ list_runs[list(as.character(1),as.character((5205:5208)*2)), classification := "
 list_runs[list(as.character(1),as.character((5217:5219)*2+1)), classification := "high"]
 list_runs[list(as.character(1),as.character((5218:5219)*2)), classification := "low"]
 
-list_runs[list(as.character(2),as.character((10750:10773))), classification := "high"]
+list_runs[list(as.character(2),as.character((5375:5386)*2+1)), classification := "high"]
+list_runs[list(as.character(2),as.character((5735:5386)*2)), classification := "low"]
 
 list_runs[list(as.character(3),as.character((5429:5436)*2+1)), classification := "high"]
 list_runs[list(as.character(3),as.character((5429:5436)*2)), classification := "low"]
@@ -215,9 +216,6 @@ list_runs[list(as.character(72),as.character(c(12856))), classification := "excl
 
 setkey(list_runs, l_projectid, l_lcrunid, index)
 setkey(identified_subs, l_projectid, l_lcrunid, index)
-setkey(test, index)
-test["11364"]
-table(list_runs[, classification])
 # Adding the column information and deciding to include if this run will be included in the retention time calculation
 # may be considered as annotating. Took some time, I hope it's worth it. Let's visualize in Spotfire !
 annotated_id <- identified_subs[list_runs]

@@ -60,8 +60,6 @@ rtPeptide <- rtPeptide[mod1=="" & modN=="NH2-" & modC=="-COOH"]
 rtPeptide <- rtPeptide[(mod1=="M<Mox*>" | mod1=="" | mod1=="C<Cmm*>" | mod1=="K<c13>" | mod1=="R<C13>" | mod1=="Q<Pyr>") &
                          modN=="NH2-" & mod2!="M<Mox>" & mod3!="M<Mox>" & mod4!="M<Mox>"]
 
-table(test[, mod1])
-
 rtPeptide[substr(modified_sequence, 1, 4) == "Ace-", elude_sequence := paste0(substr(modified_sequence, 5,5),"[Ace]",substr(modified_sequence, 6, nchar(modified_sequence)))]
 rtPeptide[substr(modified_sequence, 1, 4) == "NH2-", elude_sequence := paste0(substr(modified_sequence, 5,5),"",substr(modified_sequence, 6, nchar(modified_sequence)))]
 rtPeptide[substr(modified_sequence, 1, 5) == "prop-", elude_sequence := paste0(substr(modified_sequence, 6,6),"[prop]",substr(modified_sequence, 7, nchar(modified_sequence)))]
@@ -188,7 +186,7 @@ results[, centile := ceiling(100 * centile / NROW(results))]
 results[, meanError := mean(diff), by = centile]
 results[, q95_pred := quantile(diff, probs = 0.975) - quantile(diff, probs = 0.025), by = centile]
 results[, q90_pred := quantile(diff, probs = 0.95) - quantile(diff, probs = 0.05), by = centile]
-ggplot(results, aes(centile, meanError)) + geom_point(alpha=(1/2))
+ggplot(results, aes(Observed_RT, meanError)) + geom_point(alpha=(1/2))
 ggplot(results, aes(centile, q95_pred)) + geom_point(alpha=(1/2))
 ggplot(results, aes(centile, q90_pred)) + geom_point(alpha=(1/2))
 
