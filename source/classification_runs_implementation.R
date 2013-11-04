@@ -31,12 +31,14 @@ list_runs[list(as.character(7),as.character(11356:11360)), classification := "ex
 
 list_runs[list(as.character(8),as.character(11543:11544)), classification := "exclude"]
 
-list_runs[list(as.character(9),as.character(11538:11540)), classification := "low"]
+list_runs[list(as.character(9),as.character(11539)), classification := "low"] #
+list_runs[list(as.character(9),as.character(c(11538,11540))), classification := "high"] # 
 
 list_runs[list(as.character(10),as.character((5743:5756)*2+1)), classification := "low"]
 list_runs[list(as.character(10),as.character((5744:5756)*2)), classification := "high"]
 
-list_runs[list(as.character(11),as.character(11555:11557)), classification := "low"]
+list_runs[list(as.character(11),as.character(c(11555,11557))), classification := "low"] # 
+list_runs[list(as.character(11),as.character(c(11556))), classification := "high"] # 
 list_runs[list(as.character(11),as.character(c(12793,12795))), classification := "low"]
 list_runs[list(as.character(11),as.character(c(12794))), classification := "high"]
 

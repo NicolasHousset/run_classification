@@ -12,8 +12,34 @@ rtPeptide["high02", corrected_RT := rtsec - 50]
 rtPeptide["high03", corrected_RT := rtsec - 120]
 rtPeptide["high04", corrected_RT := rtsec - 120]
 
-# A little correction to counter the decreasing speed of peptide over time
-rtPeptide[, corrected_RT := (-0.00004*corrected_RT*corrected_RT) + (1.06*corrected_RT) - 22.5]
+# A cross-product, to interpolate the correction on a precise point (to avoid "border effects")
+compute_correction <- function(raw_rt,quartile, ...){
+  return(list_correction[quartile, correction] + ((raw_rt- list_correction[quartile, quartiles])/(list_correction[quartile+1, quartiles]-list_correction[quartile, quartiles])) * (list_correction[quartile+1,correction] - list_correction[quartile,correction]))
+}
+
+# The group chosen as reference is obviously not included
+list_group <- list("low01","low02","low03","low04","low05","low06","low07","low08",
+                   "high01","high02","high03","high04","high05","high06", "high08")
+for(i in 1:15){
+  list_correction <- diffByQuartile("high07",list_group[[i]])
+  list_correction[1, correction := list_correction[2, correction]*2 - list_correction[3, correction]]
+  
+  rtPeptide[rtsec <= list_correction[2, quartiles], group_quartile := as.character(1)]
+  rtPeptide[rtsec > list_correction[2, quartiles] &
+              rtsec <= list_correction[3, quartiles], group_quartile := as.character(2)]
+  rtPeptide[rtsec > list_correction[3, quartiles] &
+              rtsec <= list_correction[4, quartiles], group_quartile := as.character(3)]
+  rtPeptide[rtsec > list_correction[4, quartiles], group_quartile := as.character(4)]
+  
+  setkey(rtPeptide, classification.f, group_quartile)
+  
+  rtPeptide[c(list_group[[i]],"1"), corrected_RT := rtsec + compute_correction(rtsec,1)]
+  rtPeptide[c(list_group[[i]],"2"), corrected_RT := rtsec + compute_correction(rtsec, 2)]
+  rtPeptide[c(list_group[[i]],"3"), corrected_RT := rtsec + compute_correction(rtsec, 3)]
+  rtPeptide[c(list_group[[i]],"4"), corrected_RT := rtsec + compute_correction(rtsec,4)]
+}
+
+rtPeptide["high07", corrected_RT := rtsec]
 
 setkey(rtPeptide, modified_sequence)
 rtPeptide <- rtPeptide[corrected_RT > 700 & corrected_RT < 1770]
@@ -48,21 +74,21 @@ write.csv(rtPeptide, file = paste0(projectPath,"/data/filtered_id.csv"))
 
 
 ####
-rtPeptide <- rtPeptide[corrected_RT > 600]
+rtPeptide <- rtPeptide[corrected_RT > 700]
 
 rtPeptide[,rank_peptide := as.character(rank_peptide)]
 setkey(rtPeptide, rank_peptide)
 rtPeptide[, sdRawRT := sd(rtsec), by = rank_peptide]
 rtPeptide[, sdNewRT := sd(corrected_RT), by = rank_peptide]
 rtPeptide[, sdReduction := sdRawRT - sdNewRT]
-rtPeptide[, sdDrop := (1- (sdReduction / sdRawRT))*100]
+rtPeptide[, sdDrop := ((sdReduction / sdRawRT))*100]
 
 unique(rtPeptide)[as.character(3001:3100)][, list(modified_sequence, sdRawRT, sdNewRT, sdReduction, sdDrop, nbProjPep)]
 
-ggplot(rtPeptide["2"], aes(rtsec)) + xlim(1300,1800) + ylim(0,0.02) + geom_histogram(aes(y = ..density..), binwidth = 10)
-ggplot(rtPeptide["2"], aes(corrected_RT)) + xlim(1300,1800) + ylim(0,0.02) + geom_histogram(aes(y = ..density..), binwidth = 10)
+ggplot(rtPeptide["50"], aes(rtsec)) + xlim(800,2000) + ylim(0,0.02) + geom_histogram(aes(y = ..density..), binwidth = 10)
+ggplot(rtPeptide["50"], aes(corrected_RT)) + xlim(800,2000) + ylim(0,0.02) + geom_histogram(aes(y = ..density..), binwidth = 10)
 
 ggplot(rtPeptide[nbProjPep <= 8], aes(sdReduction)) + geom_histogram(aes(y = ..density..), binwidth = 3)
 
-ggplot(rtPeptide[nbProjPep > 1], aes(sdRawRT)) + xlim(0,120) + ylim(0,0.04) + geom_histogram(aes(y = ..density..), binwidth = 3)
-ggplot(rtPeptide[nbProjPep > 1], aes(sdNewRT)) + xlim(0,120) + ylim(0,0.04) + geom_histogram(aes(y = ..density..), binwidth = 3)
+ggplot(rtPeptide[nbProjPep > 1], aes(sdRawRT)) + xlim(0,120) + ylim(0,0.05) + geom_histogram(aes(y = ..density..), binwidth = 3)
+ggplot(rtPeptide[nbProjPep > 1], aes(sdNewRT)) + xlim(0,120) + ylim(0,0.05) + geom_histogram(aes(y = ..density..), binwidth = 3)
