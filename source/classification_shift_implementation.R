@@ -112,5 +112,5 @@ ggplot(rtPeptide["2"], aes(corrected_RT)) + xlim(800,2000) + ylim(0,0.02) + geom
 ggplot(rtPeptide[nbProjPep <= 8], aes(sdReduction)) + geom_histogram(aes(y = ..density..), binwidth = 3)
 ggplot(rtPeptide[nbProjPep > 2], aes(sdDrop)) + xlim(-30, 100)+ geom_histogram(aes(y = ..density..), binwidth = 5)
 
-ggplot(rtPeptide[nbProjPep > 1], aes(sdRawRT)) + xlim(0,120) + ylim(0,0.05) + geom_histogram(aes(y = ..density..), binwidth = 3)
-ggplot(rtPeptide[nbProjPep > 1], aes(sdNewRT)) + xlim(0,120) + ylim(0,0.05) + geom_histogram(aes(y = ..density..), binwidth = 3)
+ggplot(rtPeptide[nbProjPep > 1], aes(sdRawRT)) + xlim(0,120) + ylim(0,0.05) + geom_histogram(aes(y = ..density..), binwidth = 3) + theme(text = element_text(size = 30), panel.background = element_blank(), panel.grid = element_blank())
+ggplot(rtPeptide[nbProjPep > 1], aes(sdNewRT)) + xlim(0,120) + ylim(0,0.05) + geom_histogram(aes(y = ..density..), binwidth = 3)+ theme(text = element_text(size = 30), panel.background = element_blank(), panel.grid = element_blank())
